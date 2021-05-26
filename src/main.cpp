@@ -14,7 +14,7 @@ int btnMode = 0;
 bool high_brightness = false; // When false only 2 LEDs will be lighted up, when true the 4 LEDs will be lighted up
 
 // Hardware
-const bool COMMON_CATHODE   = false; // Depends on LEDs type you have for your make
+const bool COMMON_CATHODE   = true; // Depends on LEDs type you have for your make
 const int PIN_LED_R1        = 9;
 const int PIN_LED_G1        = 10;
 const int PIN_LED_B1        = 11;
@@ -38,6 +38,7 @@ const int FADE_STEP = 1;
 // Functions declaration
 void displayColor(byte r, byte g, byte b);
 void fadeColor();
+void signalBlink(int delay_time,int nb_iteration);
 
 void setup() {
     Serial.begin(9600);
@@ -67,15 +68,7 @@ void setup() {
     high_brightness = false;
 
     // Quick blink to show that tests are passed
-    displayColor(0, 0, 0);
-    delay(300);
-    displayColor(255, 255, 255);
-    delay(300);
-    displayColor(0, 0, 0);
-    delay(300);
-    displayColor(255, 255, 255);
-    delay(300);
-    displayColor(0, 0, 0);
+    signalBlink(100,2);
 
     // Set initial fading color
     displayColor(_rgbLedValues[RED], _rgbLedValues[GREEN], _rgbLedValues[BLUE]);
@@ -100,6 +93,7 @@ void loop() {
                 high_brightness = false;
                 Serial.print(F("Changing to low brightness mode"));
             }
+            signalBlink(50,3);
         } else Serial.println(mode);
     }
 
@@ -137,6 +131,17 @@ void loop() {
 
     // UI Debouncing and fading delay
     delay(300);  
+}
+
+// Signal blink
+void signalBlink(int delay_time,int nb_iteration){
+    for (int i=1 ; i<=nb_iteration ; i++){
+        displayColor(0, 0, 0);
+        delay(delay_time);
+        displayColor(255, 255, 255);
+        delay(delay_time);
+    }
+    displayColor(0, 0, 0);
 }
 
 // Actual display of selected combination of colors
