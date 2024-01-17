@@ -11,7 +11,7 @@
 byte mode = 0; // Modes 0=Fade (default) / 1=Red / 2=Green / 3=Blue / 4=Purple / 5=Cyan / 6=Yellow / 7=White
 const byte nb_modes = 8;
 int btnMode = 0;
-bool high_brightness = false; // When false only 2 LEDs will be lighted up, when true the 4 LEDs will be lighted up
+bool high_brightness = true; // When false only 2 LEDs will be lighted up, when true the 4 LEDs will be lighted up
 
 // Hardware
 const bool COMMON_CATHODE   = true; // Depends on LEDs type you have for your make
@@ -35,6 +35,9 @@ enum RGB _curFadingUpColor = GREEN;
 enum RGB _curFadingDownColor = RED;
 const int FADE_STEP = 1;  
 
+// Functionnal variables
+int i;
+
 // Functions declaration
 void displayColor(byte r, byte g, byte b);
 void fadeColor();
@@ -56,16 +59,34 @@ void setup() {
     // Test sequence on start to check if there is some burned leds
     high_brightness = true;
     Serial.println(F("- Test Red"));
-    displayColor(255, 0, 0);
-    delay(1000);
+    for (i=0 ; i <=255 ; i++){
+        displayColor(i, 0, 0);
+        delay(1);
+    }
+    for (i=255 ; i >=0 ; i--){
+        displayColor(i, 0, 0);
+        delay(1);
+    }
     Serial.println(F("- Test Green"));
-    displayColor(0, 255, 0);
-    delay(1000);
+    for (i=0 ; i <=255 ; i++){
+        displayColor(0, i, 0);
+        delay(1);
+    }
+    for (i=255 ; i >=0 ; i--){
+        displayColor(0, i, 0);
+        delay(1);
+    }
     Serial.println(F("- Test Blue"));
-    displayColor(0, 0, 255);
-    delay(1000);
+    for (i=0 ; i <=255 ; i++){
+        displayColor(0, 0, i);
+        delay(1);
+    }
+    for (i=255 ; i >=0 ; i--){
+        displayColor(0, 0, i);
+        delay(1);
+    }
     Serial.println(F("End of tests"));
-    high_brightness = false;
+    high_brightness = true;
 
     // Quick blink to show that tests are passed
     signalBlink(100,2);
@@ -130,15 +151,21 @@ void loop() {
     }
 
     // UI Debouncing and fading delay
-    delay(300);  
+    delay(100);  
 }
 
 // Signal blink
 void signalBlink(int delay_time,int nb_iteration){
     for (int i=1 ; i<=nb_iteration ; i++){
-        displayColor(0, 0, 0);
+        for(int j=0 ; j<=255 ; j++){
+            displayColor(j, j, j);
+            // delay(1);
+        }
         delay(delay_time);
-        displayColor(255, 255, 255);
+        for(int j=255 ; j>=0 ; j--){
+            displayColor(j, j, j);
+            // delay(1);
+        }
         delay(delay_time);
     }
     displayColor(0, 0, 0);
