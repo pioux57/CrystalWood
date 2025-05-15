@@ -14,7 +14,7 @@ int btnMode = 0;
 int max_brightness = 255;
 bool high_brightness = true; // When false only 2 LEDs will be lighted up, when true the 4 LEDs will be lighted up
 const int HIGH_BRIGHTNESS_VALUE = 255;
-const int LOW_BRIGHTNESS_VALUE = 100;
+const int LOW_BRIGHTNESS_VALUE = 50;
 
 // Hardware
 const bool COMMON_CATHODE   = true; // Depends on LEDs type you have for your make
@@ -36,7 +36,7 @@ enum RGB{
 int _rgbLedValues[] = {255, 0, 0}; // Red, Green, Blue
 enum RGB _curFadingUpColor = GREEN;
 enum RGB _curFadingDownColor = RED;
-const int FADE_STEP = 1;  
+int fade_step = 1;  // Speed of color change
 
 // Functionnal variables
 int i;
@@ -49,6 +49,7 @@ void signalBlink(int delay_time,int nb_iteration);
 void setup() {
     Serial.begin(9600);
     Serial.println(F(""));
+    Serial.println(F("** Crystal Wood **"));
     Serial.println(F("Starting..."));
 
     pinMode(PIN_BUTTON,INPUT_PULLUP);
@@ -113,14 +114,27 @@ void loop() {
             if (!high_brightness){
                 high_brightness = true;
                 max_brightness = HIGH_BRIGHTNESS_VALUE;
-                Serial.print(F("Changing to high brightness mode"));
+                
+                fade_step++;
+                if (fade_step == 11){fade_step = 1;}
+                Serial.print(F("Changing to high brightness mode and increasing the speed to "));
+                Serial.println(fade_step);
             } else {
                 high_brightness = false;
                 max_brightness = LOW_BRIGHTNESS_VALUE;
-                Serial.print(F("Changing to low brightness mode"));
+                Serial.println(F("Changing to low brightness mode"));
             }
             signalBlink(50,3);
         } else Serial.println(mode);
+        
+        // Resetting the fading parameters
+        if (mode == 0){
+            _rgbLedValues[0] = max_brightness;
+            _rgbLedValues[1] = 0;
+            _rgbLedValues[2] = 0;
+            _curFadingUpColor = GREEN;
+            _curFadingDownColor = RED;
+        }
     }
 
     // Handling the current mode
@@ -212,8 +226,8 @@ void displayColor(byte redValue, byte greenValue, byte blueValue) {
 void fadeColor() {
     // Increment and decrement the RGB LED values for the current
     // fade up color and the current fade down color
-    _rgbLedValues[_curFadingUpColor] += FADE_STEP;
-    _rgbLedValues[_curFadingDownColor] -= FADE_STEP;
+    _rgbLedValues[_curFadingUpColor] += fade_step;
+    _rgbLedValues[_curFadingDownColor] -= fade_step;
 
     // Check to see if we've reached our maximum color value for fading up
     // If so, go to the next fade up color (we go from RED to GREEN to BLUE
