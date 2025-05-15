@@ -11,7 +11,10 @@
 byte mode = 0; // Modes 0=Fade (default) / 1=Red / 2=Green / 3=Blue / 4=Purple / 5=Cyan / 6=Yellow / 7=White
 const byte nb_modes = 8;
 int btnMode = 0;
+int max_brightness = 255;
 bool high_brightness = true; // When false only 2 LEDs will be lighted up, when true the 4 LEDs will be lighted up
+const int HIGH_BRIGHTNESS_VALUE = 255;
+const int LOW_BRIGHTNESS_VALUE = 100;
 
 // Hardware
 const bool COMMON_CATHODE   = true; // Depends on LEDs type you have for your make
@@ -109,9 +112,11 @@ void loop() {
             Serial.println(mode);
             if (!high_brightness){
                 high_brightness = true;
+                max_brightness = HIGH_BRIGHTNESS_VALUE;
                 Serial.print(F("Changing to high brightness mode"));
             } else {
                 high_brightness = false;
+                max_brightness = LOW_BRIGHTNESS_VALUE;
                 Serial.print(F("Changing to low brightness mode"));
             }
             signalBlink(50,3);
@@ -124,25 +129,25 @@ void loop() {
             fadeColor();
         break;
         case 1:
-            displayColor(255,0,0); // RED
+            displayColor(max_brightness,0,0); // RED
         break;
         case 2:
-            displayColor(0,255,0); // GREEN
+            displayColor(0,max_brightness,0); // GREEN
         break;
         case 3:
-            displayColor(0,0,255); // BLUE
+            displayColor(0,0,max_brightness); // BLUE
         break;
         case 4:
-            displayColor(255,0,255); // PURPLE
+            displayColor(max_brightness,0,max_brightness); // PURPLE
         break;
         case 5:
-            displayColor(0,255,255); // CYAN
+            displayColor(0,max_brightness,max_brightness); // CYAN
         break;
         case 6:
-            displayColor(255,255,0); // YELLOW
+            displayColor(max_brightness,max_brightness,0); // YELLOW
         break;
         case 7:
-            displayColor(255,255,255); // WHITE
+            displayColor(max_brightness,max_brightness,max_brightness); // WHITE
         break;
         default:
             displayColor(0,0,0);
@@ -157,12 +162,12 @@ void loop() {
 // Signal blink
 void signalBlink(int delay_time,int nb_iteration){
     for (int i=1 ; i<=nb_iteration ; i++){
-        for(int j=0 ; j<=255 ; j++){
+        for(int j=0 ; j<=max_brightness ; j++){
             displayColor(j, j, j);
             // delay(1);
         }
         delay(delay_time);
-        for(int j=255 ; j>=0 ; j--){
+        for(int j=max_brightness ; j>=0 ; j--){
             displayColor(j, j, j);
             // delay(1);
         }
@@ -214,8 +219,8 @@ void fadeColor() {
     // If so, go to the next fade up color (we go from RED to GREEN to BLUE
     // as specified by the RGB enum)
     // This fade code partially based on: https://gist.github.com/jamesotron/766994
-    if(_rgbLedValues[_curFadingUpColor] > 255){
-        _rgbLedValues[_curFadingUpColor] = 255;
+    if(_rgbLedValues[_curFadingUpColor] > max_brightness){
+        _rgbLedValues[_curFadingUpColor] = max_brightness;
         _curFadingUpColor = (RGB)((int)_curFadingUpColor + 1);
 
         if(_curFadingUpColor > (int)BLUE){
